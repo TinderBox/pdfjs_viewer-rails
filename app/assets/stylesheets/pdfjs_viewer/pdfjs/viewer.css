@@ -1081,6 +1081,11 @@ html[dir='rtl'] .toolbarButton.pageDown::before {
   content: url(/pdfjs/web/images/toolbarButton-print.png);
 }
 
+.toolbarButton.annotate::before,
+.secondaryToolbarButton.annotate::before {
+  content: url(/pdfjs/web/images/toolbarButton-annotate.png);
+}
+
 .toolbarButton.openFile::before,
 .secondaryToolbarButton.openFile::before {
   content: url(/pdfjs/web/images/toolbarButton-openFile.png);
@@ -1854,6 +1859,11 @@ html[dir='rtl'] #documentPropertiesOverlay .row > * {
   .toolbarButton.print::before,
   .secondaryToolbarButton.print::before {
     content: url(/pdfjs/web/images/toolbarButton-print@2x.png);
+  }
+
+  .toolbarButton.annotate::before,
+  .secondaryToolbarButton.annotate::before {
+    content: url(/pdfjs/web/images/toolbarButton-annotate@2x.png);
   }
 
   .toolbarButton.openFile::before,

@@ -459,7 +459,7 @@ var DEFAULT_PREFERENCES = {
   disableFontFace: false,
   disableTextLayer: false,
   useOnlyCssZoom: false,
-  externalLinkTarget: 0,
+  externalLinkTarget: 0
 };
 
 
@@ -2196,6 +2196,7 @@ var SecondaryToolbar = {
     this.pageRotateCw = options.pageRotateCw;
     this.pageRotateCcw = options.pageRotateCcw;
     this.documentPropertiesButton = options.documentPropertiesButton;
+    this.annotate = options.annotate;
 
     // Attach the event listeners.
     var elements = [
@@ -2214,7 +2215,8 @@ var SecondaryToolbar = {
       { element: this.pageRotateCw, handler: this.pageRotateCwClick },
       { element: this.pageRotateCcw, handler: this.pageRotateCcwClick },
       { element: this.documentPropertiesButton,
-        handler: this.documentPropertiesClick }
+        handler: this.documentPropertiesClick },
+      { element: this.annotate, handler: this.annotateClick }
     ];
 
     for (var item in elements) {
@@ -2273,6 +2275,12 @@ var SecondaryToolbar = {
   documentPropertiesClick: function secondaryToolbarDocumentPropsClick(evt) {
     PDFViewerApplication.pdfDocumentProperties.open();
     this.close();
+  },
+
+  annotateClick: function secondaryToolbarAnnotateClick(evt) {
+    if (window.frameElement) {
+      window.parent.$(window.parent.document).trigger('annotate-iframe-file', window.frameElement);
+    }
   },
 
   // Misc. functions for interacting with the toolbar.
@@ -6193,6 +6201,7 @@ var PDFViewerApplication = {
       openFile: document.getElementById('secondaryOpenFile'),
       print: document.getElementById('secondaryPrint'),
       download: document.getElementById('secondaryDownload'),
+      annotate: document.getElementById('secondaryAnnotate'),
       viewBookmark: document.getElementById('secondaryViewBookmark'),
       firstPage: document.getElementById('firstPage'),
       lastPage: document.getElementById('lastPage'),
@@ -6329,6 +6338,8 @@ var PDFViewerApplication = {
   },
 
   get supportsPrinting() {
+    return false;
+
     var canvas = document.createElement('canvas');
     var value = 'mozPrintCallback' in canvas;
 
@@ -6369,6 +6380,14 @@ var PDFViewerApplication = {
     var support = true;
 
     return PDFJS.shadow(this, 'supportsDocumentColors', support);
+  },
+
+  get supportsAnnotations() {
+    var queryString = document.location.search.substring(1);
+    var params = parseQueryString(queryString);
+    var support = params['annotate'] === 'true';
+
+    return PDFJS.shadow(this, 'supportsAnnotations', support);
   },
 
   get loadingBar() {
@@ -6476,6 +6495,7 @@ var PDFViewerApplication = {
     }
 
     var parameters = Object.create(null);
+
     if (typeof file === 'string') { // URL
       this.setTitleUsingUrl(file);
       parameters.url = file;
@@ -7265,6 +7285,11 @@ function webViewerInitialized() {
     document.getElementById('secondaryPrint').classList.add('hidden');
   }
 
+  if (!PDFViewerApplication.supportsAnnotations) {
+    document.getElementById('annotate').classList.add('hidden');
+    document.getElementById('secondaryAnnotate').classList.add('hidden');
+  }
+
   if (!PDFViewerApplication.supportsFullscreen) {
     document.getElementById('presentationMode').classList.add('hidden');
     document.getElementById('secondaryPresentationMode').
@@ -7370,6 +7395,9 @@ function webViewerInitialized() {
 
   document.getElementById('print').addEventListener('click',
     SecondaryToolbar.printClick.bind(SecondaryToolbar));
+
+  document.getElementById('annotate').addEventListener('click',
+    SecondaryToolbar.annotateClick.bind(SecondaryToolbar));
 
   document.getElementById('download').addEventListener('click',
     SecondaryToolbar.downloadClick.bind(SecondaryToolbar));
